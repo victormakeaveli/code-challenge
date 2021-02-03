@@ -1,8 +1,5 @@
 from pathlib import Path
 
-
-#manually point-out the settings file at the environment 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = ')amyw4_9)@uh1%&pr6#a6hdmla^=l7bi5t3bai#^6_b_bc4^6m'
@@ -22,7 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'bank.apps.BankConfig',
-    
+
     'rest_framework',
 ]
 
@@ -81,6 +78,16 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_PAGINATION_CLASS': 
+#         'Husky.pagination.CustomPagination',
+    
+#     'DEFAULT_RENDERER_CLASSES': (
+#         'rest_framework.renderers.JSONRenderer',
+#     ),
+# }
+
 
 LANGUAGE_CODE = 'en-us'
 

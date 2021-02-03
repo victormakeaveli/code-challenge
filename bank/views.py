@@ -1,31 +1,42 @@
-from rest_framework import viewsets
+from Husky.pagination import CustomPagination
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+# from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
+
+from .models import Account, CreditCard, Transaction, User
+from .serializers import (
+        AccountSerializer, CreditCardSerializer, 
+        TransactionSerializer,
+        UserSerializer,
+    )
 
 
-from .serializers import CustomerSerializer, Credit_CardSerializer, TransactionSerializer, StatusesSerializer, CompanySerializer
-from .models import Company, Customer, Credit_Card, Transaction, Statuses
+class AccountView(viewsets.ModelViewSet):
+    queryset = Account.objects.all()
+    serializer_class = AccountSerializer
 
 
-class CustomerView(viewsets.ModelViewSet):
-    queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
+class CreditCardView(viewsets.ModelViewSet):
+    queryset = CreditCard.objects.all()
+    serializer_class = CreditCardSerializer
 
 
-class Credit_CardView(viewsets.ModelViewSet):
-    queryset = Credit_Card.objects.all()
-    serializer_class = Credit_CardSerializer
+class UserView(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+    @action(methods=['get'], detail=True)
+    def last(self, request):
+        newest = self.get_queryset().order_by('created').last()
+        serializer = self.get_serializer_class()(newest)
+        return Response(serializer.data)
 
 
 class TransactionView(viewsets.ModelViewSet):
+
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
-
-
-class StatusesView(viewsets.ModelViewSet):
-    queryset = Statuses.objects.all()
-    serializer_class = StatusesSerializer
-
-
-class CompanyView(viewsets.ModelViewSet):
-    queryset = Company.objects.all()
-    serializer_class = CompanySerializer
+    pagination_class = CustomPagination
 

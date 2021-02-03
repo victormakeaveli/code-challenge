@@ -1,4 +1,5 @@
-from bank.models import Customer
 from django.contrib import admin
 
-admin.site.register(Customer)
+from bank.models import Transaction
+
+admin.site.register(Transaction)

@@ -1,7 +1,6 @@
 from django import urls
 from django.contrib import admin
-from django.urls import path, include
-
+from django.urls import include, path
 
 urlpatterns = [
     path('', include('bank.urls')),

@@ -1,88 +1,105 @@
+from django_fsm import FSMField, transition, GET_STATE
+
 from django.db import models
+from django.db.models.fields.related import ForeignKey
 
 
-
-class Customer(models.Model):
+class BaseModel(models.Model):
     """
-    Customer
+    a base model to keep track of creation and updates
     """
+
+    created = models.DateTimeField(auto_now_add = True)
+    last_modified = models.DateTimeField(auto_now = True)
     
-    first_name = models.CharField(max_length=40)
-    last_name = models.CharField(max_length=40)
+    class Meta:
+        abstract = True
+
+
+class Account(BaseModel):
+    """
+    The bank account model 
+    """
+
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=7, decimal_places=2)
 
     def __str__(self):
-        return self.last_name
+        return str(self.user)
+
+    __repr__ = __str__
 
 
-class Statuses(models.Model):
+class CreditCard(BaseModel):
     """
-    maybe this is naive but it is what I got
-    """
-
-    status = models.CharField(max_length=8)
-    
-    def __str__(self):
-        return self.status
-
-
-class Company(models.Model):
-    """
-    same purpose of Statuses
+    The Credit Card
     """
 
-    name = models.CharField(max_length=12)
-
-    def __str__(self):
-        return self.name
-
-
-class Credit_Card(models.Model):
-    """
-    Credit Card
-    
-    company 
-    customer_att    # variable identifying credit cards owner
-    card_number
-    CVV
-    exp_date
-    limit
-    """
-    
-    company = models.OneToOneField(Company, on_delete=models.CASCADE)
-    customer = models.OneToOneField(Customer, on_delete=models.CASCADE)
-    card_number = models.IntegerField()
-    CVV = models.IntegerField()
+    account = models.ForeignKey('Account', on_delete=models.CASCADE)
+    full_name = models.CharField(max_length = 64)
+    card_number = models.CharField(max_length = 64)
+    CVV = models.CharField(max_length = 64)
     exp_date = models.DateField()
-    limit = models.IntegerField()
+    limit = models.DecimalField(max_digits=7, decimal_places=2)
+
+    def __str__(self):
+        return self.full_name
+
+    __repr__ = __str__
 
 
-
-
-
-class Transaction(models.Model):
+class User(BaseModel):
     """
-    the transfer application*
+    The customer model
+    """
+    
+    first_name = models.CharField(max_length=64)
+    last_name = models.CharField(max_length=64)
+
+    
+    def __str__(self):
+        return self.first_name + ' ' + self.last_name 
+
+    __repr__ = __str__
+
+
+class Transaction(BaseModel):
+    """
+   The Transaction model
     """
 
-
-    # card1 = models.OneToOneField(Credit_Card, on_delete=models.CASCADE)
-    # card2 = None
-    # amount = models.IntegerField()
-
-    # def __str__(self):
-    #     return Transaction.id
+    CURRENCY_CHOICES = (
+        ('USD', 'USD'),
+        ('BRL', 'BRL'),
+    )
 
 
-#**a function to do the computing**#
+    TRANSACTION_CHOICES = (
+        ('paid', 'paid'), 
+        ('refunded', 'refunded'),
+        ('dispute', 'dispute'),
+        ('failed', 'failed'), 
+    )
 
- 
-class Attempt(models.Model):
-    """
-    the information (status per say) about the transaction
-    """
+    
+    credit_card = models.ForeignKey('CreditCard', on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=7, decimal_places=2)
 
-    # amount = models.ForeignKey(Transaction.amount(), on_delete=models.CASCADE)
-    # status
-    # payee 
-    # receiver 
-    pass
+    status = models.CharField(
+        max_length=64,
+        choices=TRANSACTION_CHOICES,
+        default=None,
+        null=True,
+    )
+
+    currency = models.CharField(
+        max_length=64,
+        choices=CURRENCY_CHOICES,
+        default='USD',
+    )
+
+
+    def __str__(self):
+        return str(self.id)
+
+    __repr__ = __str__
